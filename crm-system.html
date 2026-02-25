@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM - Správa klientů | Finanční poradenství</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="application-name" content="CRM Systém">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CRM">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1a3a52">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect fill='%231a3a52' width='200' height='200' rx='40'/%3E%3Ctext x='100' y='130' font-size='100' text-anchor='middle' fill='white'%3E📇%3C/text%3E%3C/svg%3E">
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="manifest-crm.json">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a3a52;
+            --primary-light: #2d5f7f;
+            --accent: #d4af37;
+            --success: #2d8659;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --neutral-50: #fafafa;
+            --neutral-100: #f5f5f5;
+            --neutral-200: #e5e5e5;
+            --neutral-300: #d4d4d4;
+            --neutral-700: #404040;
+            --neutral-800: #262626;
+            --neutral-900: #171717;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e7f0f7 100%);
+            color: var(--neutral-800);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(26, 58, 82, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        h1 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 300;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--accent);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--neutral-700);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .toolbar {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 2.75rem;
+            border: 2px solid var(--neutral-200);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26, 58, 82, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.25rem;
+            color: var(--neutral-700);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.75rem 1.25rem;
+            border: 2px solid var(--neutral-200);
+            background: white;
+            color: var(--neutral-700);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover {
+            background: var(--neutral-100);
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            padding: 0.875rem 1.75rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 58, 82, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #24694a;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .clients-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .client-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-left: 4px solid var(--accent);
+        }
+
+        .client-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        .client-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .client-name {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .client-id {
+            font-size: 0.875rem;
+            color: var(--neutral-700);
+            margin-top: 0.25rem;
+        }
+
+        .client-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .client-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .info-icon {
+            font-size: 1.1rem;
+        }
+
+        .client-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 0.375rem 0.875rem;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .tag-priority {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .tag-active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .tag-pending {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .tag-reminder {
+            background: #fecaca;
+            color: #991b1b;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .modal-header h2 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid var(--neutral-200);
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 500;
+            color: var(--neutral-700);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        input, select, textarea {
+            padding: 0.75rem;
+            border: 2px solid var(--neutral-200);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26, 58, 82, 0.1);
+        }
+
+        .notes-section {
+            margin-top: 2rem;
+        }
+
+        .note-item {
+            background: var(--neutral-50);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 3px solid var(--accent);
+        }
+
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .note-date {
+            font-size: 0.875rem;
+            color: var(--neutral-700);
+            font-weight: 500;
+        }
+
+        .note-text {
+            color: var(--neutral-800);
+            white-space: pre-wrap;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--neutral-700);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        .reminder-badge {
+            background: var(--danger);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .section-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            .toolbar {
+                flex-direction: column;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+            
+            .client-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>📇 CRM Systém</h1>
+            <p class="subtitle">Správa klientů a finanční poradenství</p>
+            <div id="installPrompt" style="display: none; margin-top: 1rem;">
+                <button class="btn btn-success" onclick="installPWA()" style="animation: pulse 2s infinite;">
+                    📱 Nainstalovat jako aplikaci
+                </button>
+            </div>
+        </header>
+
+        <style>
+            @keyframes pulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+            }
+        </style>
+
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-label">Celkem klientů</div>
+                <div class="stat-value" id="statTotal">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Aktivní klienti</div>
+                <div class="stat-value" id="statActive">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Připomínky</div>
+                <div class="stat-value" id="statReminders">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Tento měsíc</div>
+                <div class="stat-value" id="statMonth">0</div>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="Vyhledat klienta podle jména, RČ, emailu...">
+            </div>
+            
+            <div class="filter-group">
+                <button class="filter-btn active" data-filter="all">Všichni</button>
+                <button class="filter-btn" data-filter="active">Aktivní</button>
+                <button class="filter-btn" data-filter="pending">Čekající</button>
+                <button class="filter-btn" data-filter="priority">Prioritní</button>
+            </div>
+
+            <button class="btn btn-primary" onclick="openNewClientModal()">➕ Nový klient</button>
+            <button class="btn btn-outline" onclick="exportData()">💾 Export dat</button>
+            <button class="btn btn-outline" onclick="importData()">📥 Import dat</button>
+        </div>
+
+        <div class="clients-grid" id="clientsGrid">
+            <!-- Klienti se zobrazí zde -->
+        </div>
+
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-state-icon">📋</div>
+            <h3>Zatím nemáte žádné klienty</h3>
+            <p>Začněte přidáním nového klienta nebo importem dat z finanční analýzy</p>
+            <button class="btn btn-primary" onclick="openNewClientModal()" style="margin-top: 1rem;">➕ Přidat prvního klienta</button>
+        </div>
+    </div>
+
+    <!-- Modal: Detail/Editace klienta -->
+    <div class="modal" id="clientModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Detail klienta</h2>
+                <p id="modalSubtitle">Kompletní přehled a editace údajů</p>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editClientId">
+                
+                <h3 class="section-title">Základní údaje</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Jméno a příjmení *</label>
+                        <input type="text" id="modalJmeno" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Rodné číslo / IČO</label>
+                        <input type="text" id="modalRc">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="modalEmail">
+                    </div>
+                    <div class="form-group">
+                        <label>Telefon</label>
+                        <input type="tel" id="modalTelefon">
+                    </div>
+                    <div class="form-group">
+                        <label>Rodinný stav</label>
+                        <select id="modalRodinnyStav">
+                            <option value="">Vyberte...</option>
+                            <option value="svobodny">Svobodný/á</option>
+                            <option value="zenaty">Ženatý/Vdaná</option>
+                            <option value="rozvedeny">Rozvedený/á</option>
+                            <option value="vdovec">Vdovec/Vdova</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Počet dětí</label>
+                        <input type="number" id="modalDeti" min="0" value="0">
+                    </div>
+                </div>
+
+                <h3 class="section-title">Stav a kategorie</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Stav klienta</label>
+                        <select id="modalStatus">
+                            <option value="active">Aktivní</option>
+                            <option value="pending">Čekající</option>
+                            <option value="inactive">Neaktivní</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Priorita</label>
+                        <select id="modalPriority">
+                            <option value="normal">Normální</option>
+                            <option value="high">Vysoká</option>
+                            <option value="urgent">Urgentní</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Datum další schůzky</label>
+                        <input type="date" id="modalNextMeeting">
+                    </div>
+                </div>
+
+                <h3 class="section-title">Finanční přehled</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Měsíční příjem (Kč)</label>
+                        <input type="number" id="modalPrijem" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Celkový majetek (Kč)</label>
+                        <input type="number" id="modalMajetek" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Celkové závazky (Kč)</label>
+                        <input type="number" id="modalZavazky" min="0" value="0">
+                    </div>
+                </div>
+
+                <h3 class="section-title">Poznámky a historie</h3>
+                <div class="form-group">
+                    <label>Přidat poznámku</label>
+                    <textarea id="modalNewNote" rows="3" placeholder="Napište poznámku..."></textarea>
+                    <button class="btn btn-sm btn-primary" onclick="addNote()" style="margin-top: 0.5rem; align-self: flex-start;">💬 Přidat poznámku</button>
+                </div>
+
+                <div class="notes-section" id="notesContainer">
+                    <!-- Poznámky se zobrazí zde -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal()">Zrušit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteClient()">🗑️ Smazat</button>
+                <button class="btn btn-success" onclick="openInAnalyzer()">📊 Otevřít v analyzátoru</button>
+                <button class="btn btn-primary" onclick="saveClient()">💾 Uložit</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Registrace Service Worker pro PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registrován:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registrace selhala:', error);
+                    });
+            });
+        }
+
+        // PWA Install Prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installPrompt').style.display = 'block';
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('PWA instalováno');
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('installPrompt').style.display = 'none';
+                });
+            } else {
+                // Pro iOS Safari
+                alert('Pro instalaci na iPhone:\n\n1. Klikněte na tlačítko "Sdílet" (čtverec se šipkou)\n2. Posuňte dolů a vyberte "Přidat na plochu"\n3. Potvrďte "Přidat"\n\nAplikace se přidá na domovskou obrazovku jako ikona.');
+            }
+        }
+
+        // Globální proměnné
+        let clients = [];
+        let currentFilter = 'all';
+        let currentEditId = null;
+
+        // Inicializace
+        window.addEventListener('load', () => {
+            loadClients();
+            renderClients();
+            updateStats();
+            setupEventListeners();
+            checkReminders();
+        });
+
+        // Event listeners
+        function setupEventListeners() {
+            // Vyhledávání
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                renderClients(e.target.value);
+            });
+
+            // Filtry
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentFilter = e.target.dataset.filter;
+                    renderClients();
+                });
+            });
+        }
+
+        // Načtení klientů z localStorage
+        function loadClients() {
+            const saved = localStorage.getItem('crmClients');
+            if (saved) {
+                clients = JSON.parse(saved);
+            }
+        }
+
+        // Uložení klientů do localStorage
+        function saveClients() {
+            localStorage.setItem('crmClients', JSON.stringify(clients));
+        }
+
+        // Vykreslení klientů
+        function renderClients(searchTerm = '') {
+            const grid = document.getElementById('clientsGrid');
+            const emptyState = document.getElementById('emptyState');
+            
+            let filtered = clients;
+
+            // Filtrace podle kategorie
+            if (currentFilter !== 'all') {
+                if (currentFilter === 'priority') {
+                    filtered = filtered.filter(c => c.priority === 'high' || c.priority === 'urgent');
+                } else {
+                    filtered = filtered.filter(c => c.status === currentFilter);
+                }
+            }
+
+            // Vyhledávání
+            if (searchTerm) {
+                const term = searchTerm.toLowerCase();
+                filtered = filtered.filter(c => 
+                    c.jmeno.toLowerCase().includes(term) ||
+                    (c.rc && c.rc.toLowerCase().includes(term)) ||
+                    (c.email && c.email.toLowerCase().includes(term)) ||
+                    (c.telefon && c.telefon.includes(term))
+                );
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            
+            grid.innerHTML = filtered.map(client => {
+                const hasReminder = client.nextMeeting && new Date(client.nextMeeting) <= new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+                
+                return `
+                    <div class="client-card" onclick="openClientDetail('${client.id}')">
+                        <div class="client-header">
+                            <div>
+                                <div class="client-name">${client.jmeno}</div>
+                                <div class="client-id">ID: ${client.id.substring(0, 8)}</div>
+                            </div>
+                            ${hasReminder ? '<span class="reminder-badge">❗ Schůzka brzy</span>' : ''}
+                        </div>
+                        
+                        <div class="client-info">
+                            <div class="info-item">
+                                <span class="info-icon">📧</span>
+                                ${client.email || 'Neuvedeno'}
+                            </div>
+                            <div class="info-item">
+                                <span class="info-icon">📱</span>
+                                ${client.telefon || 'Neuvedeno'}
+                            </div>
+                            <div class="info-item">
+                                <span class="info-icon">👨‍👩‍👧‍👦</span>
+                                ${client.rodinnyStav || 'Neuvedeno'} ${client.deti > 0 ? `(${client.deti} dětí)` : ''}
+                            </div>
+                            ${client.nextMeeting ? `
+                                <div class="info-item">
+                                    <span class="info-icon">📅</span>
+                                    Další schůzka: ${new Date(client.nextMeeting).toLocaleDateString('cs-CZ')}
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <div class="client-tags">
+                            ${client.status === 'active' ? '<span class="tag tag-active">✓ Aktivní</span>' : ''}
+                            ${client.status === 'pending' ? '<span class="tag tag-pending">⏳ Čekající</span>' : ''}
+                            ${client.priority === 'high' || client.priority === 'urgent' ? '<span class="tag tag-priority">⭐ Prioritní</span>' : ''}
+                            ${client.prijem ? `<span class="tag">💰 ${formatCurrency(client.prijem)}/měs</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Formátování měny
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('cs-CZ', {
+                style: 'currency',
+                currency: 'CZK',
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        // Aktualizace statistik
+        function updateStats() {
+            document.getElementById('statTotal').textContent = clients.length;
+            document.getElementById('statActive').textContent = clients.filter(c => c.status === 'active').length;
+            
+            const now = new Date();
+            const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+            const reminders = clients.filter(c => c.nextMeeting && new Date(c.nextMeeting) <= weekFromNow).length;
+            document.getElementById('statReminders').textContent = reminders;
+
+            const thisMonth = clients.filter(c => {
+                const created = new Date(c.createdAt);
+                return created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear();
+            }).length;
+            document.getElementById('statMonth').textContent = thisMonth;
+        }
+
+        // Kontrola připomínek
+        function checkReminders() {
+            const now = new Date();
+            const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+            
+            clients.forEach(client => {
+                if (client.nextMeeting) {
+                    const meetingDate = new Date(client.nextMeeting);
+                    if (meetingDate.toDateString() === tomorrow.toDateString()) {
+                        console.log(`Připomínka: Zítra máte schůzku s ${client.jmeno}`);
+                        // Zde můžete přidat notifikaci
+                    }
+                }
+            });
+        }
+
+        // Otevření modalu pro nového klienta
+        function openNewClientModal() {
+            currentEditId = null;
+            document.getElementById('modalTitle').textContent = 'Nový klient';
+            document.getElementById('modalSubtitle').textContent = 'Vyplňte údaje nového klienta';
+            
+            // Vyčistit formulář
+            document.getElementById('editClientId').value = '';
+            document.getElementById('modalJmeno').value = '';
+            document.getElementById('modalRc').value = '';
+            document.getElementById('modalEmail').value = '';
+            document.getElementById('modalTelefon').value = '';
+            document.getElementById('modalRodinnyStav').value = '';
+            document.getElementById('modalDeti').value = '0';
+            document.getElementById('modalStatus').value = 'active';
+            document.getElementById('modalPriority').value = 'normal';
+            document.getElementById('modalNextMeeting').value = '';
+            document.getElementById('modalPrijem').value = '0';
+            document.getElementById('modalMajetek').value = '0';
+            document.getElementById('modalZavazky').value = '0';
+            document.getElementById('notesContainer').innerHTML = '';
+            
+            document.getElementById('clientModal').classList.add('active');
+        }
+
+        // Otevření detailu klienta
+        function openClientDetail(clientId) {
+            const client = clients.find(c => c.id === clientId);
+            if (!client) return;
+
+            currentEditId = clientId;
+            document.getElementById('modalTitle').textContent = client.jmeno;
+            document.getElementById('modalSubtitle').textContent = `ID: ${clientId}`;
+            
+            // Naplnit formulář
+            document.getElementById('editClientId').value = client.id;
+            document.getElementById('modalJmeno').value = client.jmeno || '';
+            document.getElementById('modalRc').value = client.rc || '';
+            document.getElementById('modalEmail').value = client.email || '';
+            document.getElementById('modalTelefon').value = client.telefon || '';
+            document.getElementById('modalRodinnyStav').value = client.rodinnyStav || '';
+            document.getElementById('modalDeti').value = client.deti || 0;
+            document.getElementById('modalStatus').value = client.status || 'active';
+            document.getElementById('modalPriority').value = client.priority || 'normal';
+            document.getElementById('modalNextMeeting').value = client.nextMeeting || '';
+            document.getElementById('modalPrijem').value = client.prijem || 0;
+            document.getElementById('modalMajetek').value = client.majetek || 0;
+            document.getElementById('modalZavazky').value = client.zavazky || 0;
+
+            // Zobrazit poznámky
+            renderNotes(client);
+            
+            document.getElementById('clientModal').classList.add('active');
+        }
+
+        // Vykreslení poznámek
+        function renderNotes(client) {
+            const container = document.getElementById('notesContainer');
+            if (!client.notes || client.notes.length === 0) {
+                container.innerHTML = '<p style="color: var(--neutral-700); font-style: italic;">Zatím žádné poznámky</p>';
+                return;
+            }
+
+            container.innerHTML = client.notes.map(note => `
+                <div class="note-item">
+                    <div class="note-header">
+                        <span class="note-date">${new Date(note.date).toLocaleString('cs-CZ')}</span>
+                    </div>
+                    <div class="note-text">${note.text}</div>
+                </div>
+            `).join('');
+        }
+
+        // Přidání poznámky
+        function addNote() {
+            const noteText = document.getElementById('modalNewNote').value.trim();
+            if (!noteText) return;
+
+            const clientId = currentEditId;
+            if (!clientId) {
+                alert('Nejprve uložte klienta');
+                return;
+            }
+
+            const client = clients.find(c => c.id === clientId);
+            if (!client) return;
+
+            if (!client.notes) {
+                client.notes = [];
+            }
+
+            client.notes.unshift({
+                date: new Date().toISOString(),
+                text: noteText
+            });
+
+            saveClients();
+            renderNotes(client);
+            document.getElementById('modalNewNote').value = '';
+        }
+
+        // Uložení klienta
+        function saveClient() {
+            const jmeno = document.getElementById('modalJmeno').value.trim();
+            if (!jmeno) {
+                alert('Jméno je povinné pole');
+                return;
+            }
+
+            const clientData = {
+                jmeno: jmeno,
+                rc: document.getElementById('modalRc').value,
+                email: document.getElementById('modalEmail').value,
+                telefon: document.getElementById('modalTelefon').value,
+                rodinnyStav: document.getElementById('modalRodinnyStav').value,
+                deti: parseInt(document.getElementById('modalDeti').value) || 0,
+                status: document.getElementById('modalStatus').value,
+                priority: document.getElementById('modalPriority').value,
+                nextMeeting: document.getElementById('modalNextMeeting').value,
+                prijem: parseFloat(document.getElementById('modalPrijem').value) || 0,
+                majetek: parseFloat(document.getElementById('modalMajetek').value) || 0,
+                zavazky: parseFloat(document.getElementById('modalZavazky').value) || 0,
+                updatedAt: new Date().toISOString()
+            };
+
+            if (currentEditId) {
+                // Editace existujícího klienta
+                const index = clients.findIndex(c => c.id === currentEditId);
+                if (index !== -1) {
+                    clients[index] = { ...clients[index], ...clientData };
+                }
+            } else {
+                // Nový klient
+                const newClient = {
+                    id: generateId(),
+                    ...clientData,
+                    createdAt: new Date().toISOString(),
+                    notes: []
+                };
+                clients.unshift(newClient);
+            }
+
+            saveClients();
+            renderClients();
+            updateStats();
+            closeModal();
+        }
+
+        // Smazání klienta
+        function deleteClient() {
+            if (!currentEditId) return;
+            
+            if (!confirm('Opravdu chcete smazat tohoto klienta? Tato akce je nevratná.')) {
+                return;
+            }
+
+            clients = clients.filter(c => c.id !== currentEditId);
+            saveClients();
+            renderClients();
+            updateStats();
+            closeModal();
+        }
+
+        // Zavření modalu
+        function closeModal() {
+            document.getElementById('clientModal').classList.remove('active');
+            currentEditId = null;
+        }
+
+        // Otevření v analyzátoru
+        function openInAnalyzer() {
+            if (!currentEditId) return;
+            
+            const client = clients.find(c => c.id === currentEditId);
+            if (!client) return;
+
+            // Uložit data pro analyzátor
+            localStorage.setItem('analyzerImport', JSON.stringify(client));
+            
+            // Otevřít analyzátor v nové záložce
+            window.open('financni-analyzer.html?import=true', '_blank');
+        }
+
+        // Export dat
+        function exportData() {
+            const dataStr = JSON.stringify(clients, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `crm-export-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Import dat
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const imported = JSON.parse(event.target.result);
+                        if (confirm(`Importovat ${imported.length} klientů? Existující data budou sloučena.`)) {
+                            // Sloučit data - přidat pouze nové, neexistující ID
+                            imported.forEach(client => {
+                                if (!clients.find(c => c.id === client.id)) {
+                                    clients.push(client);
+                                }
+                            });
+                            saveClients();
+                            renderClients();
+                            updateStats();
+                            alert('Import úspěšný!');
+                        }
+                    } catch (err) {
+                        alert('Chyba při importu: ' + err.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        // Generování ID
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substring(2);
+        }
+
+        // Zavření modalu při kliknutí mimo něj
+        document.getElementById('clientModal').addEventListener('click', (e) => {
+            if (e.target.id === 'clientModal') {
+                closeModal();
+            }
+        });
+
+        // Kontrola importu z analyzátoru při načtení stránky
+        window.addEventListener('load', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('import') === 'true') {
+                const importData = localStorage.getItem('analyzerExport');
+                if (importData) {
+                    try {
+                        const clientData = JSON.parse(importData);
+                        // Otevřít modal s předvyplněnými daty
+                        openNewClientModal();
+                        // Naplnit formulář importovanými daty
+                        Object.keys(clientData).forEach(key => {
+                            const field = document.getElementById('modal' + key.charAt(0).toUpperCase() + key.slice(1));
+                            if (field) {
+                                field.value = clientData[key];
+                            }
+                        });
+                        localStorage.removeItem('analyzerExport');
+                    } catch (err) {
+                        console.error('Chyba při importu z analyzátoru:', err);
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1863 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profesionální Finanční Analýza Klienta</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="application-name" content="Finanční Analýza">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Analýza">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1a3a52">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect fill='%231a3a52' width='200' height='200' rx='40'/%3E%3Ctext x='100' y='130' font-size='100' text-anchor='middle' fill='white'%3E📊%3C/text%3E%3C/svg%3E">
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="manifest-analyzer.json">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a3a52;
+            --primary-light: #2d5f7f;
+            --accent: #d4af37;
+            --success: #2d8659;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --neutral-50: #fafafa;
+            --neutral-100: #f5f5f5;
+            --neutral-200: #e5e5e5;
+            --neutral-300: #d4d4d4;
+            --neutral-700: #404040;
+            --neutral-800: #262626;
+            --neutral-900: #171717;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e7f0f7 100%);
+            color: var(--neutral-800);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(26, 58, 82, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        h1 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 300;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tab-navigation {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid transparent;
+            background: var(--neutral-100);
+            color: var(--neutral-700);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            font-size: 0.95rem;
+        }
+
+        .tab-btn:hover {
+            background: var(--neutral-200);
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(26, 58, 82, 0.3);
+        }
+
+        .section {
+            display: none;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        .card-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 500;
+            color: var(--neutral-700);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        input, select, textarea {
+            padding: 0.75rem;
+            border: 2px solid var(--neutral-200);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26, 58, 82, 0.1);
+        }
+
+        .btn {
+            padding: 0.875rem 1.75rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 58, 82, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #24694a;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .summary-label {
+            font-size: 0.875rem;
+            color: var(--neutral-700);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .chart-container {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .metric-positive {
+            color: var(--success);
+        }
+
+        .metric-negative {
+            color: var(--danger);
+        }
+
+        .metric-warning {
+            color: var(--warning);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th {
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 0.875rem 1rem;
+            border-bottom: 1px solid var(--neutral-200);
+        }
+
+        tr:hover {
+            background: var(--neutral-50);
+        }
+
+        .recommendation-box {
+            background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+            border-left: 4px solid var(--warning);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .recommendation-box h4 {
+            color: var(--warning);
+            margin-bottom: 0.75rem;
+            font-family: 'Crimson Pro', serif;
+        }
+
+        .risk-indicator {
+            display: inline-block;
+            padding: 0.375rem 0.875rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .risk-low {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .risk-medium {
+            background: #fed7aa;
+            color: #92400e;
+        }
+
+        .risk-high {
+            background: #fecaca;
+            color: #991b1b;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .tab-navigation, .action-buttons, header::before {
+                display: none;
+            }
+            .section {
+                display: block !important;
+                page-break-after: always;
+            }
+            .card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                page-break-inside: avoid;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            font-style: italic;
+            color: var(--neutral-700);
+        }
+
+        .export-preview {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            margin-top: 2rem;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--neutral-200);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+            transition: width 0.3s ease;
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--neutral-100);
+            border-radius: 20px;
+            font-size: 0.875rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>📊 Profesionální Finanční Analýza</h1>
+            <p class="subtitle">Komplexní nástroj pro analýzu úvěrů, investic, spoření a pojištění</p>
+            <div id="installPrompt" style="display: none; margin-top: 1rem; position: relative; z-index: 2;">
+                <button class="btn btn-success" onclick="installPWA()" style="animation: pulse 2s infinite;">
+                    📱 Nainstalovat jako aplikaci
+                </button>
+            </div>
+        </header>
+
+        <style>
+            @keyframes pulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+            }
+        </style>
+
+        <div class="tab-navigation">
+            <button class="tab-btn active" onclick="switchTab('klient')">👤 Klient</button>
+            <button class="tab-btn" onclick="switchTab('prijmy')">💰 Příjmy & Výdaje</button>
+            <button class="tab-btn" onclick="switchTab('majetek')">🏠 Majetek & Dluhy</button>
+            <button class="tab-btn" onclick="switchTab('investice')">📈 Investice & Cíle</button>
+            <button class="tab-btn" onclick="switchTab('pojisteni')">🛡️ Pojištění</button>
+            <button class="tab-btn" onclick="switchTab('analyza')">📋 Analýza & Doporučení</button>
+        </div>
+
+        <!-- SEKCE: Identifikace klienta -->
+        <div id="klient" class="section active">
+            <div class="card">
+                <h2 class="card-title">Identifikační údaje klienta</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Jméno a příjmení *</label>
+                        <input type="text" id="jmeno" placeholder="Jan Novák">
+                    </div>
+                    <div class="form-group">
+                        <label>Rodné číslo / IČO</label>
+                        <input type="text" id="rc" placeholder="123456/7890 nebo 12345678">
+                    </div>
+                    <div class="form-group">
+                        <label>Datum narození</label>
+                        <input type="date" id="narozeni">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="email" placeholder="jan.novak@email.cz">
+                    </div>
+                    <div class="form-group">
+                        <label>Telefon</label>
+                        <input type="tel" id="telefon" placeholder="+420 123 456 789">
+                    </div>
+                    <div class="form-group">
+                        <label>Vzdělání</label>
+                        <select id="vzdelani">
+                            <option value="">Vyberte...</option>
+                            <option value="zakladni">Základní</option>
+                            <option value="ss">Střední škola</option>
+                            <option value="vs">Vysoká škola</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Rodinný stav</label>
+                        <select id="rodinnyStav">
+                            <option value="">Vyberte...</option>
+                            <option value="svobodny">Svobodný/á</option>
+                            <option value="zenaty">Ženatý/Vdaná</option>
+                            <option value="rozvedeny">Rozvedený/á</option>
+                            <option value="vdovec">Vdovec/Vdova</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Počet dětí</label>
+                        <input type="number" id="deti" min="0" value="0" onchange="updateChildrenFields()">
+                    </div>
+                    <div class="form-group">
+                        <label>Počet členů domácnosti</label>
+                        <input type="number" id="clenoveDomacnosti" min="1" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Zaměstnání / Podnikání</label>
+                        <input type="text" id="zamestnani" placeholder="IT specialista">
+                    </div>
+                    <div class="form-group">
+                        <label>Zaměstnání / Podnikání od</label>
+                        <input type="month" id="zamestnaniOd">
+                    </div>
+                    <div class="form-group">
+                        <label>Typ zaměstnání</label>
+                        <select id="typZamestnani">
+                            <option value="">Vyberte...</option>
+                            <option value="hpu">Hlavní pracovní poměr</option>
+                            <option value="osvc">OSVČ</option>
+                            <option value="dpp">DPP/DPČ</option>
+                            <option value="nezamestany">Nezaměstnaný/á</option>
+                            <option value="duchod">Důchod</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" id="detiCard" style="display: none;">
+                <h2 class="card-title">Údaje o dětech</h2>
+                <div id="detiContainer"></div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Údaje manželky / manžela / partnera</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Jméno a příjmení</label>
+                        <input type="text" id="manzelkaJmeno" placeholder="Jana Nováková">
+                    </div>
+                    <div class="form-group">
+                        <label>Rodné číslo / IČO</label>
+                        <input type="text" id="manzelkaRc" placeholder="123456/7890">
+                    </div>
+                    <div class="form-group">
+                        <label>Datum narození</label>
+                        <input type="date" id="manzelkaNarozeni">
+                    </div>
+                    <div class="form-group">
+                        <label>Vzdělání</label>
+                        <select id="manzelkaVzdelani">
+                            <option value="">Vyberte...</option>
+                            <option value="zakladni">Základní</option>
+                            <option value="ss">Střední škola</option>
+                            <option value="vs">Vysoká škola</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Zaměstnání / Podnikání</label>
+                        <input type="text" id="manzelkaZamestnani" placeholder="Účetní">
+                    </div>
+                    <div class="form-group">
+                        <label>Zaměstnání / Podnikání od</label>
+                        <input type="month" id="manzelkaZamestnaniOd">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Finanční cíle klienta</h2>
+                <div class="form-group">
+                    <label>Krátkodobé cíle (do 1 roku)</label>
+                    <textarea id="cileKratkodobeKlient" rows="3" placeholder="Např. naspořit rezervu 100 000 Kč, splatit kreditní kartu, dovolená..."></textarea>
+                </div>
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label>Střednědobé cíle (2-5 let)</label>
+                    <textarea id="cileStrednodobeKlient" rows="3" placeholder="Např. koupě auta, rekonstrukce bytu, dovzdělání, investice..."></textarea>
+                </div>
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label>Dlouhodobé cíle (6 a více let)</label>
+                    <textarea id="cileDlouhodobeKlient" rows="3" placeholder="Např. koupě nemovitosti, zajištění vzdělání dětí, finanční nezávislost, předčasný důchod..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEKCE: Příjmy a výdaje -->
+        <div id="prijmy" class="section">
+            <div class="card">
+                <h2 class="card-title">Měsíční příjmy</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Čistý příjem ze zaměstnání (Kč)</label>
+                        <input type="number" id="prijemZamestnani" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Příjem partnera (Kč)</label>
+                        <input type="number" id="prijemPartner" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Příjem z podnikání (Kč)</label>
+                        <input type="number" id="prijemPodnikani" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Příjem z pronájmu (Kč)</label>
+                        <input type="number" id="prijemPronajem" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Investiční výnosy (Kč)</label>
+                        <input type="number" id="prijemInvestice" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Ostatní příjmy (Kč)</label>
+                        <input type="number" id="prijemOstatni" min="0" value="0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Měsíční výdaje</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Bydlení (hypotéka/nájem) (Kč)</label>
+                        <input type="number" id="vydajBydleni" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Energie a služby (Kč)</label>
+                        <input type="number" id="vydajEnergie" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Potraviny (Kč)</label>
+                        <input type="number" id="vydajPotraviny" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Doprava (Kč)</label>
+                        <input type="number" id="vydajDoprava" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Pojištění (Kč)</label>
+                        <input type="number" id="vydajPojisteni" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Splátky úvěrů (Kč)</label>
+                        <input type="number" id="vydajSplatky" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Volný čas a zábava (Kč)</label>
+                        <input type="number" id="vydajVolnyCas" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Ostatní výdaje (Kč)</label>
+                        <input type="number" id="vydajOstatni" min="0" value="0">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEKCE: Majetek a dluhy -->
+        <div id="majetek" class="section">
+            <div class="card">
+                <h2 class="card-title">Likvidní majetek - Účty a úspory</h2>
+                
+                <h3 style="color: var(--primary); font-size: 1.2rem; margin-bottom: 1rem; margin-top: 0;">Běžné účty</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Instituce (banka)</label>
+                        <input type="text" id="beznyUcetBanka" placeholder="Česká spořitelna">
+                    </div>
+                    <div class="form-group">
+                        <label>Zůstatek (Kč)</label>
+                        <input type="number" id="beznyUcet" min="0" value="0">
+                    </div>
+                </div>
+
+                <h3 style="color: var(--primary); font-size: 1.2rem; margin-bottom: 1rem; margin-top: 2rem;">Spořící účet</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Instituce (banka)</label>
+                        <input type="text" id="sporiciUcetBanka" placeholder="Raiffeisenbank">
+                    </div>
+                    <div class="form-group">
+                        <label>Zůstatek (Kč)</label>
+                        <input type="number" id="sporiciUcet" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Úroková sazba (%)</label>
+                        <input type="number" id="sporiciUcetUrok" min="0" step="0.1" value="0">
+                    </div>
+                </div>
+
+                <h3 style="color: var(--primary); font-size: 1.2rem; margin-bottom: 1rem; margin-top: 2rem;">Termínovaný vklad</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Instituce (banka)</label>
+                        <input type="text" id="terminovanyVkladBanka" placeholder="Fio banka">
+                    </div>
+                    <div class="form-group">
+                        <label>Zůstatek (Kč)</label>
+                        <input type="number" id="terminovanyVklad" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Úroková sazba (%)</label>
+                        <input type="number" id="terminovanyVkladUrok" min="0" step="0.1" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Splatnost</label>
+                        <input type="date" id="terminovanyVkladSplatnost">
+                    </div>
+                </div>
+
+                <h3 style="color: var(--primary); font-size: 1.2rem; margin-bottom: 1rem; margin-top: 2rem;">Penzijní spoření</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Penzijní společnost</label>
+                        <input type="text" id="penzePenzSpol" placeholder="NN">
+                    </div>
+                    <div class="form-group">
+                        <label>Zůstatek (Kč)</label>
+                        <input type="number" id="majetekPenze" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Měsíční příspěvek (Kč)</label>
+                        <input type="number" id="penzeMesicniPrispevek" min="0" value="0">
+                    </div>
+                </div>
+
+                <h3 style="color: var(--primary); font-size: 1.2rem; margin-bottom: 1rem; margin-top: 2rem;">Stavební spoření</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Stavební spořitelna</label>
+                        <input type="text" id="stavSporBanka" placeholder="ČMSS">
+                    </div>
+                    <div class="form-group">
+                        <label>Zůstatek (Kč)</label>
+                        <input type="number" id="stavebniSporeni" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Měsíční vklad (Kč)</label>
+                        <input type="number" id="stavSporMesicni" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Cílová částka (Kč)</label>
+                        <input type="number" id="stavSporCil" min="0" value="0">
+                    </div>
+                </div>
+
+                <h3 style="color: var(--primary); font-size: 1.2rem; margin-bottom: 1rem; margin-top: 2rem;">Celková hotovost a úspory</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Hotovost doma (Kč)</label>
+                        <input type="number" id="hotovost" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Ostatní úspory (Kč)</label>
+                        <input type="number" id="ostatniUspory" min="0" value="0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Nemovitosti</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Počet nemovitostí</label>
+                        <input type="number" id="pocetNemovitosti" min="0" value="0" onchange="updateNemovitostiFields()">
+                    </div>
+                </div>
+                <div id="nemovitostiContainer"></div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Ostatní majetek</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Automobily - hodnota (Kč)</label>
+                        <input type="number" id="majetekAuta" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Investice (akcie, dluhopisy, fondy) (Kč)</label>
+                        <input type="number" id="majetekInvestice" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Ostatní majetek (Kč)</label>
+                        <input type="number" id="majetekOstatni" min="0" value="0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Závazky a dluhy</h2>
+                
+                <h3 style="color: var(--primary); font-size: 1.2rem; margin-bottom: 1rem; margin-top: 0;">Hypotéka</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Instituce (banka)</label>
+                        <input type="text" id="dluhHypotekaBanka" placeholder="Česká spořitelna">
+                    </div>
+                    <div class="form-group">
+                        <label>Původní výše úvěru (Kč)</label>
+                        <input type="number" id="dluhHypotekaOriginal" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Současný zůstatek (Kč)</label>
+                        <input type="number" id="dluhHypoteka" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Měsíční splátka (Kč)</label>
+                        <input type="number" id="dluhHypotekaSplatka" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Úroková sazba (%)</label>
+                        <input type="number" id="dluhHypotekaUrok" min="0" step="0.1" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Úvěr od (měsíc/rok)</label>
+                        <input type="month" id="dluhHypotekaOd">
+                    </div>
+                </div>
+
+                <h3 style="color: var(--primary); font-size: 1.2rem; margin-bottom: 1rem; margin-top: 2rem;">Spotřebitelské úvěry</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Instituce (banka)</label>
+                        <input type="text" id="dluhSpotrBanka" placeholder="ČSOB">
+                    </div>
+                    <div class="form-group">
+                        <label>Původní výše úvěru (Kč)</label>
+                        <input type="number" id="dluhSpotrOriginal" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Současný zůstatek (Kč)</label>
+                        <input type="number" id="dluhSpotrebni" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Měsíční splátka (Kč)</label>
+                        <input type="number" id="dluhSpotrSplatka" min="0" value="0">
+                    </div>
+                </div>
+
+                <h3 style="color: var(--primary); font-size: 1.2rem; margin-bottom: 1rem; margin-top: 2rem;">Leasing</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Leasingová společnost</label>
+                        <input type="text" id="dluhLeasingBanka" placeholder="ŠkoFIN">
+                    </div>
+                    <div class="form-group">
+                        <label>Původní výše (Kč)</label>
+                        <input type="number" id="dluhLeasingOriginal" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Současný zůstatek (Kč)</label>
+                        <input type="number" id="dluhLeasing" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Měsíční splátka (Kč)</label>
+                        <input type="number" id="dluhLeasingSplatka" min="0" value="0">
+                    </div>
+                </div>
+
+                <h3 style="color: var(--primary); font-size: 1.2rem; margin-bottom: 1rem; margin-top: 2rem;">Kreditní karty</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Instituce (banka)</label>
+                        <input type="text" id="dluhKartyBanka" placeholder="Komerční banka">
+                    </div>
+                    <div class="form-group">
+                        <label>Aktuální dluh (Kč)</label>
+                        <input type="number" id="dluhKarty" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Úvěrový limit (Kč)</label>
+                        <input type="number" id="dluhKartyLimit" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Minimální splátka (Kč)</label>
+                        <input type="number" id="dluhKartySplatka" min="0" value="0">
+                    </div>
+                </div>
+
+                <h3 style="color: var(--primary); font-size: 1.2rem; margin-bottom: 1rem; margin-top: 2rem;">Ostatní závazky</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Popis závazku</label>
+                        <input type="text" id="dluhOstatniPopis" placeholder="Půjčka od rodiny">
+                    </div>
+                    <div class="form-group">
+                        <label>Výše závazku (Kč)</label>
+                        <input type="number" id="dluhOstatni" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Měsíční splátka (Kč)</label>
+                        <input type="number" id="dluhOstatniSplatka" min="0" value="0">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEKCE: Investice a cíle -->
+        <div id="investice" class="section">
+            <div class="card">
+                <h2 class="card-title">Investiční profil</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Investiční zkušenosti</label>
+                        <select id="investZkusenosti">
+                            <option value="">Vyberte...</option>
+                            <option value="zadne">Žádné zkušenosti</option>
+                            <option value="zakladni">Základní znalosti</option>
+                            <option value="pokrocile">Pokročilé znalosti</option>
+                            <option value="expert">Expert</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Rizikový profil</label>
+                        <select id="investRiziko">
+                            <option value="">Vyberte...</option>
+                            <option value="konzervativni">Konzervativní</option>
+                            <option value="vyvazeny">Vyvážený</option>
+                            <option value="dynamicky">Dynamický</option>
+                            <option value="agresivni">Agresivní</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Investiční horizont</label>
+                        <select id="investHorizont">
+                            <option value="">Vyberte...</option>
+                            <option value="kratky">Krátkodobý (do 3 let)</option>
+                            <option value="stredni">Střednědobý (3-10 let)</option>
+                            <option value="dlouhy">Dlouhodobý (nad 10 let)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Měsíční investiční kapacita (Kč)</label>
+                        <input type="number" id="investKapacita" min="0" value="0">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEKCE: Pojištění -->
+        <div id="pojisteni" class="section">
+            <div class="card">
+                <h2 class="card-title">Životní pojištění</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Pojišťovna</label>
+                        <input type="text" id="pojistZivotPojistovna" placeholder="Kooperativa">
+                    </div>
+                    <div class="form-group">
+                        <label>Životní pojištění</label>
+                        <select id="pojistZivot">
+                            <option value="ne">Nemám</option>
+                            <option value="ano">Mám</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Pojistka od (měsíc/rok)</label>
+                        <input type="month" id="pojistZivotOd">
+                    </div>
+                    <div class="form-group">
+                        <label>Pojistná částka - život (Kč)</label>
+                        <input type="number" id="pojistZivotCastka" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Měsíční pojistné - život (Kč)</label>
+                        <input type="number" id="pojistZivotMesicni" min="0" value="0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Úrazové pojištění</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Pojišťovna</label>
+                        <input type="text" id="pojistUrazPojistovna" placeholder="Allianz">
+                    </div>
+                    <div class="form-group">
+                        <label>Úrazové pojištění</label>
+                        <select id="pojistUraz">
+                            <option value="ne">Nemám</option>
+                            <option value="ano">Mám</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Pojistka od (měsíc/rok)</label>
+                        <input type="month" id="pojistUrazOd">
+                    </div>
+                    <div class="form-group">
+                        <label>Pojistná částka - úraz (Kč)</label>
+                        <input type="number" id="pojistUrazCastka" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Měsíční pojistné - úraz (Kč)</label>
+                        <input type="number" id="pojistUrazMesicni" min="0" value="0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Majetkové pojištění</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Pojišťovna</label>
+                        <input type="text" id="pojistMajetekPojistovna" placeholder="Generali">
+                    </div>
+                    <div class="form-group">
+                        <label>Pojištění nemovitosti</label>
+                        <select id="pojistNemovitost">
+                            <option value="ne">Nemám</option>
+                            <option value="ano">Mám</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Pojištění domácnosti</label>
+                        <select id="pojistDomacnost">
+                            <option value="ne">Nemám</option>
+                            <option value="ano">Mám</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Pojištění odpovědnosti (POV)</label>
+                        <select id="pojistOdpovednost">
+                            <option value="ne">Nemám</option>
+                            <option value="ano">Mám</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Měsíční pojistné - majetek (Kč)</label>
+                        <input type="number" id="pojistMajetekMesicni" min="0" value="0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Pojištění vozidel</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Pojišťovna</label>
+                        <input type="text" id="pojistAutoPojistovna" placeholder="Direct">
+                    </div>
+                    <div class="form-group">
+                        <label>Povinné ručení (PZP)</label>
+                        <select id="pojistAutoPov">
+                            <option value="ne">Nemám</option>
+                            <option value="ano">Mám</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Havarijní pojištění (HAV)</label>
+                        <select id="pojistAutoHav">
+                            <option value="ne">Nemám</option>
+                            <option value="ano">Mám</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Pojištění provozu</label>
+                        <select id="pojistAutoProvoz">
+                            <option value="ne">Nemám</option>
+                            <option value="ano">Mám</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Měsíční pojistné - auto (Kč)</label>
+                        <input type="number" id="pojistAutoMesicni" min="0" value="0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Celkové pojistné</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Celkové měsíční pojistné (Kč)</label>
+                        <input type="number" id="pojistCelkem" min="0" value="0">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEKCE: Analýza a doporučení -->
+        <div id="analyza" class="section">
+            <div class="card">
+                <h2 class="card-title">Souhrnná finanční analýza</h2>
+                <div id="analyzaVysledky" class="loading">
+                    Klikněte na "Vygenerovat analýzu" pro zobrazení výsledků
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Doporučení finančního poradce</h2>
+                <p style="color: var(--neutral-700); margin-bottom: 1rem; font-size: 0.95rem;">
+                    Zde můžete zaznamenat své osobní poznámky, doporučení a návrhy řešení pro klienta.
+                </p>
+                <div class="form-group">
+                    <label>Doporučené produkty a služby</label>
+                    <textarea id="doporuceniPoradce" rows="6" 
+                        placeholder="Např.:
+- Navýšení rezervy na 6 měsíců výdajů
+- Refinancování hypotéky při sazbě nad 5%
+- Investiční strategie: vyvážené portfolio s ETF
+- Doplnění životního pojištění na 3M Kč
+- ..."></textarea>
+                </div>
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label>Akční plán a časování</label>
+                    <textarea id="akcniPlan" rows="4" 
+                        placeholder="Např.:
+1. Ihned: Nastavit rezervu 50 000 Kč měsíčně
+2. Do 3 měsíců: Refinancovat hypotéku
+3. Do 6 měsíců: Založit investiční účet
+..."></textarea>
+                </div>
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label>Další poznámky</label>
+                    <textarea id="poznamkyPoradce" rows="3" 
+                        placeholder="Interní poznámky pro další schůzku, specifické požadavky klienta..."></textarea>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="generateAnalyza()">📊 Vygenerovat analýzu</button>
+                <button class="btn btn-success" onclick="exportToCRM()">📇 Uložit do CRM</button>
+                <button class="btn btn-success" onclick="exportPDF()">📄 Export PDF (Klient)</button>
+                <button class="btn btn-outline" onclick="exportInternal()">📋 Export pro poradce</button>
+                <button class="btn btn-outline" onclick="exportPresentation()">📽️ Export prezentace</button>
+                <button class="btn btn-outline" onclick="window.print()">🖨️ Tisk</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Registrace Service Worker pro PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registrován:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registrace selhala:', error);
+                    });
+            });
+        }
+
+        // PWA Install Prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installPrompt').style.display = 'block';
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('PWA instalováno');
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('installPrompt').style.display = 'none';
+                });
+            } else {
+                // Pro iOS Safari
+                alert('Pro instalaci na iPhone:\n\n1. Klikněte na tlačítko "Sdílet" (čtverec se šipkou) dole\n2. Posuňte dolů a vyberte "Přidat na plochu"\n3. Potvrďte "Přidat"\n\nAplikace se přidá na domovskou obrazovku jako ikona.');
+            }
+        }
+
+        // Dynamické vytváření polí pro děti
+        function updateChildrenFields() {
+            const pocetDeti = parseInt(document.getElementById('deti').value) || 0;
+            const detiCard = document.getElementById('detiCard');
+            const detiContainer = document.getElementById('detiContainer');
+            
+            if (pocetDeti === 0) {
+                detiCard.style.display = 'none';
+                detiContainer.innerHTML = '';
+                return;
+            }
+            
+            detiCard.style.display = 'block';
+            detiContainer.innerHTML = '';
+            
+            for (let i = 1; i <= pocetDeti; i++) {
+                const childDiv = document.createElement('div');
+                childDiv.className = 'form-grid';
+                childDiv.style.marginBottom = '1.5rem';
+                childDiv.style.paddingBottom = '1.5rem';
+                childDiv.style.borderBottom = i < pocetDeti ? '1px solid var(--neutral-200)' : 'none';
+                
+                childDiv.innerHTML = `
+                    <div style="grid-column: 1 / -1;">
+                        <h4 style="color: var(--primary); margin-bottom: 1rem;">${i}. dítě</h4>
+                    </div>
+                    <div class="form-group">
+                        <label>Jméno a příjmení</label>
+                        <input type="text" id="dite${i}Jmeno" placeholder="Jan Novák">
+                    </div>
+                    <div class="form-group">
+                        <label>Věk (roky)</label>
+                        <input type="number" id="dite${i}Vek" min="0" max="25" placeholder="10">
+                    </div>
+                    <div class="form-group">
+                        <label>Datum narození</label>
+                        <input type="date" id="dite${i}Narozeni">
+                    </div>
+                `;
+                
+                detiContainer.appendChild(childDiv);
+            }
+        }
+
+        // Dynamické vytváření polí pro nemovitosti
+        function updateNemovitostiFields() {
+            const pocetNemovitosti = parseInt(document.getElementById('pocetNemovitosti').value) || 0;
+            const nemovitostiContainer = document.getElementById('nemovitostiContainer');
+            
+            if (pocetNemovitosti === 0) {
+                nemovitostiContainer.innerHTML = '';
+                return;
+            }
+            
+            nemovitostiContainer.innerHTML = '';
+            
+            for (let i = 1; i <= pocetNemovitosti; i++) {
+                const propDiv = document.createElement('div');
+                propDiv.className = 'form-grid';
+                propDiv.style.marginTop = '1.5rem';
+                propDiv.style.paddingTop = '1.5rem';
+                propDiv.style.borderTop = '1px solid var(--neutral-200)';
+                
+                propDiv.innerHTML = `
+                    <div style="grid-column: 1 / -1;">
+                        <h4 style="color: var(--primary); margin-bottom: 1rem;">${i}. nemovitost</h4>
+                    </div>
+                    <div class="form-group">
+                        <label>Typ nemovitosti</label>
+                        <select id="nemovitost${i}Typ">
+                            <option value="">Vyberte...</option>
+                            <option value="byt">Byt</option>
+                            <option value="dum">Rodinný dům</option>
+                            <option value="pozemek">Pozemek</option>
+                            <option value="chata">Chata/Chalupa</option>
+                            <option value="garaz">Garáž</option>
+                            <option value="ostatni">Ostatní</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Adresa / Lokalita</label>
+                        <input type="text" id="nemovitost${i}Adresa" placeholder="Praha 5, Smíchov">
+                    </div>
+                    <div class="form-group">
+                        <label>Odhadovaná hodnota (Kč)</label>
+                        <input type="number" id="nemovitost${i}Hodnota" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Účel využití</label>
+                        <select id="nemovitost${i}Ucel">
+                            <option value="bydleni">Vlastní bydlení</option>
+                            <option value="pronajem">Pronájem</option>
+                            <option value="rekreace">Rekreace</option>
+                            <option value="investice">Investice</option>
+                        </select>
+                    </div>
+                `;
+                
+                nemovitostiContainer.appendChild(propDiv);
+            }
+        }
+
+        // Přepínání mezi sekcemi
+        function switchTab(tabName) {
+            // Skrýt všechny sekce
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Deaktivovat všechna tlačítka
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Aktivovat vybranou sekci
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Generování analýzy
+        function generateAnalyza() {
+            // Sběr dat
+            const data = collectData();
+            
+            // Výpočty
+            const calculations = performCalculations(data);
+            
+            // Generování HTML výstupu
+            const html = generateAnalysisHTML(data, calculations);
+            
+            document.getElementById('analyzaVysledky').innerHTML = html;
+        }
+
+        function collectData() {
+            const pocetDeti = parseInt(document.getElementById('deti').value) || 0;
+            const deti = [];
+            
+            // Sběr údajů o dětech
+            for (let i = 1; i <= pocetDeti; i++) {
+                const jmeno = document.getElementById(`dite${i}Jmeno`)?.value || '';
+                const vek = parseInt(document.getElementById(`dite${i}Vek`)?.value) || 0;
+                const narozeni = document.getElementById(`dite${i}Narozeni`)?.value || '';
+                
+                if (jmeno || vek || narozeni) {
+                    deti.push({ jmeno, vek, narozeni });
+                }
+            }
+            
+            // Sběr údajů o nemovitostech
+            const pocetNemovitosti = parseInt(document.getElementById('pocetNemovitosti').value) || 0;
+            const nemovitosti = [];
+            let celkovaHodnotaNemovitosti = 0;
+            
+            for (let i = 1; i <= pocetNemovitosti; i++) {
+                const typ = document.getElementById(`nemovitost${i}Typ`)?.value || '';
+                const adresa = document.getElementById(`nemovitost${i}Adresa`)?.value || '';
+                const hodnota = parseFloat(document.getElementById(`nemovitost${i}Hodnota`)?.value) || 0;
+                const ucel = document.getElementById(`nemovitost${i}Ucel`)?.value || '';
+                
+                if (typ || adresa || hodnota) {
+                    nemovitosti.push({ typ, adresa, hodnota, ucel });
+                    celkovaHodnotaNemovitosti += hodnota;
+                }
+            }
+            
+            // Výpočet celkové hotovosti a úspor
+            const beznyUcet = parseFloat(document.getElementById('beznyUcet')?.value) || 0;
+            const sporiciUcet = parseFloat(document.getElementById('sporiciUcet')?.value) || 0;
+            const terminovanyVklad = parseFloat(document.getElementById('terminovanyVklad')?.value) || 0;
+            const stavebniSporeni = parseFloat(document.getElementById('stavebniSporeni')?.value) || 0;
+            const hotovost = parseFloat(document.getElementById('hotovost')?.value) || 0;
+            const ostatniUspory = parseFloat(document.getElementById('ostatniUspory')?.value) || 0;
+            const majetekHotovost = beznyUcet + sporiciUcet + terminovanyVklad + stavebniSporeni + hotovost + ostatniUspory;
+            
+            return {
+                jmeno: document.getElementById('jmeno').value || 'Klient',
+                narozeni: document.getElementById('narozeni').value,
+                rodinnyStav: document.getElementById('rodinnyStav').value,
+                deti: pocetDeti,
+                detiInfo: deti,
+                
+                // Finanční cíle klienta
+                cileKratkodobeKlient: document.getElementById('cileKratkodobeKlient')?.value || '',
+                cileStrednodobeKlient: document.getElementById('cileStrednodobeKlient')?.value || '',
+                cileDlouhodobeKlient: document.getElementById('cileDlouhodobeKlient')?.value || '',
+                
+                // Příjmy
+                prijemZamestnani: parseFloat(document.getElementById('prijemZamestnani').value) || 0,
+                prijemPartner: parseFloat(document.getElementById('prijemPartner').value) || 0,
+                prijemPodnikani: parseFloat(document.getElementById('prijemPodnikani').value) || 0,
+                prijemPronajem: parseFloat(document.getElementById('prijemPronajem').value) || 0,
+                prijemInvestice: parseFloat(document.getElementById('prijemInvestice').value) || 0,
+                prijemOstatni: parseFloat(document.getElementById('prijemOstatni').value) || 0,
+                
+                // Výdaje
+                vydajBydleni: parseFloat(document.getElementById('vydajBydleni').value) || 0,
+                vydajEnergie: parseFloat(document.getElementById('vydajEnergie').value) || 0,
+                vydajPotraviny: parseFloat(document.getElementById('vydajPotraviny').value) || 0,
+                vydajDoprava: parseFloat(document.getElementById('vydajDoprava').value) || 0,
+                vydajPojisteni: parseFloat(document.getElementById('vydajPojisteni').value) || 0,
+                vydajSplatky: parseFloat(document.getElementById('vydajSplatky').value) || 0,
+                vydajVolnyCas: parseFloat(document.getElementById('vydajVolnyCas').value) || 0,
+                vydajOstatni: parseFloat(document.getElementById('vydajOstatni').value) || 0,
+                
+                // Majetek - hotovost a úspory
+                beznyUcet: beznyUcet,
+                sporiciUcet: sporiciUcet,
+                terminovanyVklad: terminovanyVklad,
+                stavebniSporeni: stavebniSporeni,
+                hotovost: hotovost,
+                ostatniUspory: ostatniUspory,
+                majetekHotovost: majetekHotovost,
+                
+                // Majetek - nemovitosti
+                nemovitosti: nemovitosti,
+                majetekNemovitosti: celkovaHodnotaNemovitosti,
+                
+                // Majetek - ostatní
+                majetekAuta: parseFloat(document.getElementById('majetekAuta').value) || 0,
+                majetekInvestice: parseFloat(document.getElementById('majetekInvestice').value) || 0,
+                majetekPenze: parseFloat(document.getElementById('majetekPenze').value) || 0,
+                majetekOstatni: parseFloat(document.getElementById('majetekOstatni').value) || 0,
+                
+                // Dluhy
+                dluhHypoteka: parseFloat(document.getElementById('dluhHypoteka').value) || 0,
+                dluhSpotrebni: parseFloat(document.getElementById('dluhSpotrebni').value) || 0,
+                dluhLeasing: parseFloat(document.getElementById('dluhLeasing').value) || 0,
+                dluhKarty: parseFloat(document.getElementById('dluhKarty').value) || 0,
+                dluhOstatni: parseFloat(document.getElementById('dluhOstatni').value) || 0,
+                
+                // Investice
+                investRiziko: document.getElementById('investRiziko').value,
+                investHorizont: document.getElementById('investHorizont').value,
+                investKapacita: parseFloat(document.getElementById('investKapacita').value) || 0,
+                
+                // Pojištění
+                pojistZivotCastka: parseFloat(document.getElementById('pojistZivotCastka').value) || 0,
+                pojistUrazCastka: parseFloat(document.getElementById('pojistUrazCastka').value) || 0,
+                pojistCelkem: parseFloat(document.getElementById('pojistCelkem').value) || 0
+            };
+        }
+
+        function performCalculations(data) {
+            // Celkové příjmy
+            const celkovePrijmy = data.prijemZamestnani + data.prijemPartner + 
+                                  data.prijemPodnikani + data.prijemPronajem + 
+                                  data.prijemInvestice + data.prijemOstatni;
+            
+            // Celkové výdaje
+            const celkoveVydaje = data.vydajBydleni + data.vydajEnergie + 
+                                  data.vydajPotraviny + data.vydajDoprava + 
+                                  data.vydajPojisteni + data.vydajSplatky + 
+                                  data.vydajVolnyCas + data.vydajOstatni;
+            
+            // Disponibilní příjem
+            const disponibilniPrijem = celkovePrijmy - celkoveVydaje;
+            
+            // Celkový majetek - opravený výpočet
+            const celkovyMajetek = data.majetekNemovitosti + data.majetekAuta + 
+                                   data.majetekHotovost + data.majetekInvestice + 
+                                   data.majetekPenze + data.majetekOstatni;
+            
+            // Celkové dluhy
+            const celkoveDluhy = data.dluhHypoteka + data.dluhSpotrebni + 
+                                 data.dluhLeasing + data.dluhKarty + data.dluhOstatni;
+            
+            // Čisté jmění
+            const cisteJmeni = celkovyMajetek - celkoveDluhy;
+            
+            // Míra zadluženosti
+            const miraZadluzenosti = celkovyMajetek > 0 ? 
+                                     (celkoveDluhy / celkovyMajetek) * 100 : 0;
+            
+            // Míra úspor
+            const miraUspor = celkovePrijmy > 0 ? 
+                             (disponibilniPrijem / celkovePrijmy) * 100 : 0;
+            
+            // DTI (Debt to Income)
+            const dti = celkovePrijmy > 0 ? 
+                       (data.vydajSplatky / celkovePrijmy) * 100 : 0;
+            
+            return {
+                celkovePrijmy,
+                celkoveVydaje,
+                disponibilniPrijem,
+                celkovyMajetek,
+                celkoveDluhy,
+                cisteJmeni,
+                miraZadluzenosti,
+                miraUspor,
+                dti
+            };
+        }
+
+        function generateAnalysisHTML(data, calc) {
+            const formatCurrency = (num) => {
+                return new Intl.NumberFormat('cs-CZ', {
+                    style: 'currency',
+                    currency: 'CZK',
+                    maximumFractionDigits: 0
+                }).format(num);
+            };
+
+            const getStatusClass = (value, thresholds) => {
+                if (value <= thresholds.good) return 'metric-positive';
+                if (value <= thresholds.warning) return 'metric-warning';
+                return 'metric-negative';
+            };
+
+            let html = `
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <div class="summary-label">Celkové příjmy</div>
+                        <div class="summary-value">${formatCurrency(calc.celkovePrijmy)}</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-label">Celkové výdaje</div>
+                        <div class="summary-value">${formatCurrency(calc.celkoveVydaje)}</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-label">Disponibilní příjem</div>
+                        <div class="summary-value ${calc.disponibilniPrijem >= 0 ? 'metric-positive' : 'metric-negative'}">
+                            ${formatCurrency(calc.disponibilniPrijem)}
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-label">Čisté jmění</div>
+                        <div class="summary-value ${calc.cisteJmeni >= 0 ? 'metric-positive' : 'metric-negative'}">
+                            ${formatCurrency(calc.cisteJmeni)}
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 2rem; margin-bottom: 1rem; font-family: 'Crimson Pro', serif; color: var(--primary);">
+                    Klíčové ukazatele
+                </h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ukazatel</th>
+                            <th>Hodnota</th>
+                            <th>Hodnocení</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Míra úspor</td>
+                            <td>${calc.miraUspor.toFixed(1)}%</td>
+                            <td>
+                                ${calc.miraUspor >= 20 ? '<span class="risk-low">Výborné</span>' : 
+                                  calc.miraUspor >= 10 ? '<span class="risk-medium">Dobré</span>' : 
+                                  '<span class="risk-high">Nedostatečné</span>'}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>DTI (splátky/příjmy)</td>
+                            <td>${calc.dti.toFixed(1)}%</td>
+                            <td>
+                                ${calc.dti <= 30 ? '<span class="risk-low">Vyhovující</span>' : 
+                                  calc.dti <= 45 ? '<span class="risk-medium">Limitní</span>' : 
+                                  '<span class="risk-high">Vysoké riziko</span>'}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Míra zadluženosti</td>
+                            <td>${calc.miraZadluzenosti.toFixed(1)}%</td>
+                            <td>
+                                ${calc.miraZadluzenosti <= 50 ? '<span class="risk-low">Nízká</span>' : 
+                                  calc.miraZadluzenosti <= 70 ? '<span class="risk-medium">Střední</span>' : 
+                                  '<span class="risk-high">Vysoká</span>'}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Likvidní rezerva</td>
+                            <td>${formatCurrency(data.majetekHotovost)}</td>
+                            <td>
+                                ${data.majetekHotovost >= calc.celkoveVydaje * 6 ? '<span class="risk-low">Dostatečná</span>' : 
+                                  data.majetekHotovost >= calc.celkoveVydaje * 3 ? '<span class="risk-medium">Minimální</span>' : 
+                                  '<span class="risk-high">Nedostatečná</span>'}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="recommendation-box">
+                    <h4>🎯 Klíčová doporučení</h4>
+                    ${generateRecommendations(data, calc)}
+                </div>
+
+                <h3 style="margin-top: 2rem; margin-bottom: 1rem; font-family: 'Crimson Pro', serif; color: var(--primary);">
+                    Detailní analýza po oblastech
+                </h3>
+                ${generateDetailedAnalysis(data, calc)}
+            `;
+
+            return html;
+        }
+
+        function generateRecommendations(data, calc) {
+            let recommendations = [];
+
+            // Likvidní rezerva
+            const rezervaMin = calc.celkoveVydaje * 3;
+            if (data.majetekHotovost < rezervaMin) {
+                recommendations.push(`
+                    <p><strong>Likvidní rezerva:</strong> Doporučujeme navýšit hotovostní rezervu na minimálně 
+                    ${new Intl.NumberFormat('cs-CZ', {style: 'currency', currency: 'CZK', maximumFractionDigits: 0}).format(rezervaMin)} 
+                    (3-6 měsíčních výdajů).</p>
+                `);
+            }
+
+            // Míra úspor
+            if (calc.miraUspor < 10) {
+                recommendations.push(`
+                    <p><strong>Spoření:</strong> Vaše míra úspor je ${calc.miraUspor.toFixed(1)}%, 
+                    doporučujeme navýšit na minimálně 10-20% z příjmů.</p>
+                `);
+            }
+
+            // DTI
+            if (calc.dti > 40) {
+                recommendations.push(`
+                    <p><strong>Zadluženost:</strong> Poměr splátek k příjmům (${calc.dti.toFixed(1)}%) 
+                    je vysoký. Zvažte refinancování nebo konsolidaci úvěrů.</p>
+                `);
+            }
+
+            // Pojištění
+            const doporucenePojisteni = calc.celkovePrijmy * 12 * 5; // 5 let příjmů
+            if (data.pojistZivotCastka < doporucenePojisteni) {
+                recommendations.push(`
+                    <p><strong>Pojistná ochrana:</strong> Doporučená pojistná částka pro životní pojištění je 
+                    ${new Intl.NumberFormat('cs-CZ', {style: 'currency', currency: 'CZK', maximumFractionDigits: 0}).format(doporucenePojisteni)}.</p>
+                `);
+            }
+
+            // Investice
+            if (data.investKapacita > 0 && calc.disponibilniPrijem > 5000) {
+                recommendations.push(`
+                    <p><strong>Investice:</strong> S disponibilním příjmem 
+                    ${new Intl.NumberFormat('cs-CZ', {style: 'currency', currency: 'CZK', maximumFractionDigits: 0}).format(calc.disponibilniPrijem)} 
+                    máte prostor pro pravidelné investování. Zvažte investiční portfolio dle vašeho rizikového profilu.</p>
+                `);
+            }
+
+            if (recommendations.length === 0) {
+                recommendations.push('<p><strong>Gratulujeme!</strong> Vaše finanční situace je velmi dobrá. Pokračujte v současné strategii.</p>');
+            }
+
+            return recommendations.join('');
+        }
+
+        function generateDetailedAnalysis(data, calc) {
+            const formatCurrency = (num) => {
+                return new Intl.NumberFormat('cs-CZ', {
+                    style: 'currency',
+                    currency: 'CZK',
+                    maximumFractionDigits: 0
+                }).format(num);
+            };
+
+            // Přidání informací o dětech
+            let detiInfo = '';
+            if (data.detiInfo && data.detiInfo.length > 0) {
+                detiInfo = '<div class="card" style="margin: 0;"><h4 style="color: var(--primary); margin-bottom: 1rem;">👨‍👩‍👧‍👦 Informace o dětech</h4>';
+                data.detiInfo.forEach((dite, index) => {
+                    detiInfo += `<p><strong>${index + 1}. dítě:</strong> ${dite.jmeno || 'Neuvedeno'}, ${dite.vek ? dite.vek + ' let' : 'věk neuvedeno'}</p>`;
+                });
+                detiInfo += '</div>';
+            }
+
+            // Přidání finančních cílů
+            let cileInfo = '';
+            if (data.cileKratkodobeKlient || data.cileStrednodobeKlient || data.cileDlouhodobeKlient) {
+                cileInfo = '<div class="card" style="margin: 0;"><h4 style="color: var(--primary); margin-bottom: 1rem;">🎯 Finanční cíle klienta</h4>';
+                
+                if (data.cileKratkodobeKlient) {
+                    cileInfo += `<div style="margin-bottom: 1rem;">
+                        <p style="font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;">Krátkodobé cíle (do 1 roku):</p>
+                        <p style="white-space: pre-wrap; padding-left: 1rem; border-left: 3px solid var(--accent);">${data.cileKratkodobeKlient}</p>
+                    </div>`;
+                }
+                
+                if (data.cileStrednodobeKlient) {
+                    cileInfo += `<div style="margin-bottom: 1rem;">
+                        <p style="font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;">Střednědobé cíle (2-5 let):</p>
+                        <p style="white-space: pre-wrap; padding-left: 1rem; border-left: 3px solid var(--accent);">${data.cileStrednodobeKlient}</p>
+                    </div>`;
+                }
+                
+                if (data.cileDlouhodobeKlient) {
+                    cileInfo += `<div style="margin-bottom: 1rem;">
+                        <p style="font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;">Dlouhodobé cíle (6 a více let):</p>
+                        <p style="white-space: pre-wrap; padding-left: 1rem; border-left: 3px solid var(--accent);">${data.cileDlouhodobeKlient}</p>
+                    </div>`;
+                }
+                
+                cileInfo += '</div>';
+            }
+
+            // Přidání informací o nemovitostech
+            let nemovitostiInfo = '';
+            if (data.nemovitosti && data.nemovitosti.length > 0) {
+                nemovitostiInfo = '<div class="card" style="margin: 0;"><h4 style="color: var(--primary); margin-bottom: 1rem;">🏠 Portfolio nemovitostí</h4>';
+                data.nemovitosti.forEach((nem, index) => {
+                    const typText = {
+                        'byt': 'Byt',
+                        'dum': 'Rodinný dům',
+                        'pozemek': 'Pozemek',
+                        'chata': 'Chata/Chalupa',
+                        'garaz': 'Garáž',
+                        'ostatni': 'Ostatní'
+                    };
+                    const ucelText = {
+                        'bydleni': 'Vlastní bydlení',
+                        'pronajem': 'Pronájem',
+                        'rekreace': 'Rekreace',
+                        'investice': 'Investice'
+                    };
+                    nemovitostiInfo += `<p><strong>${index + 1}. ${typText[nem.typ] || nem.typ}:</strong> ${nem.adresa || 'Adresa neuvedena'} - ${formatCurrency(nem.hodnota)} <span class="pill">${ucelText[nem.ucel] || nem.ucel}</span></p>`;
+                });
+                nemovitostiInfo += `<p style="margin-top: 1rem; font-weight: 600; color: var(--primary);">Celková hodnota: ${formatCurrency(data.majetekNemovitosti)}</p></div>`;
+            }
+
+            // Přidání detailního přehledu úspor
+            let usporyInfo = '';
+            if (data.majetekHotovost > 0) {
+                usporyInfo = '<div class="card" style="margin: 0;"><h4 style="color: var(--primary); margin-bottom: 1rem;">💰 Struktura úspor a likvidního majetku</h4>';
+                if (data.beznyUcet > 0) usporyInfo += `<p>Běžný účet: ${formatCurrency(data.beznyUcet)}</p>`;
+                if (data.sporiciUcet > 0) usporyInfo += `<p>Spořící účet: ${formatCurrency(data.sporiciUcet)}</p>`;
+                if (data.terminovanyVklad > 0) usporyInfo += `<p>Termínovaný vklad: ${formatCurrency(data.terminovanyVklad)}</p>`;
+                if (data.stavebniSporeni > 0) usporyInfo += `<p>Stavební spoření: ${formatCurrency(data.stavebniSporeni)}</p>`;
+                if (data.hotovost > 0) usporyInfo += `<p>Hotovost: ${formatCurrency(data.hotovost)}</p>`;
+                if (data.ostatniUspory > 0) usporyInfo += `<p>Ostatní úspory: ${formatCurrency(data.ostatniUspory)}</p>`;
+                usporyInfo += `<p style="margin-top: 1rem; font-weight: 600; color: var(--primary);">Celkem likvidní prostředky: ${formatCurrency(data.majetekHotovost)}</p></div>`;
+            }
+
+            return `
+                ${detiInfo}
+                ${cileInfo}
+                ${nemovitostiInfo}
+                ${usporyInfo}
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
+                    
+                    <div class="card" style="margin: 0;">
+                        <h4 style="color: var(--primary); margin-bottom: 1rem;">💰 Analýza Cash Flow</h4>
+                        <p><strong>Celkové měsíční příjmy:</strong> ${formatCurrency(calc.celkovePrijmy)}</p>
+                        <p><strong>Celkové měsíční výdaje:</strong> ${formatCurrency(calc.celkoveVydaje)}</p>
+                        <p><strong>Disponibilní příjem:</strong> 
+                            <span class="${calc.disponibilniPrijem >= 0 ? 'metric-positive' : 'metric-negative'}">
+                                ${formatCurrency(calc.disponibilniPrijem)}
+                            </span>
+                        </p>
+                        <div class="progress-bar" style="margin-top: 1rem;">
+                            <div class="progress-fill" style="width: ${Math.min((calc.celkoveVydaje / calc.celkovePrijmy) * 100, 100)}%"></div>
+                        </div>
+                        <p style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--neutral-700);">
+                            Výdaje tvoří ${((calc.celkoveVydaje / calc.celkovePrijmy) * 100).toFixed(0)}% příjmů
+                        </p>
+                    </div>
+
+                    <div class="card" style="margin: 0;">
+                        <h4 style="color: var(--primary); margin-bottom: 1rem;">🏠 Majetková situace</h4>
+                        <p><strong>Celkový majetek:</strong> ${formatCurrency(calc.celkovyMajetek)}</p>
+                        <p><strong>Celkové závazky:</strong> ${formatCurrency(calc.celkoveDluhy)}</p>
+                        <p><strong>Čisté jmění:</strong> 
+                            <span class="${calc.cisteJmeni >= 0 ? 'metric-positive' : 'metric-negative'}">
+                                ${formatCurrency(calc.cisteJmeni)}
+                            </span>
+                        </p>
+                        <p style="margin-top: 1rem;"><strong>Složení majetku:</strong></p>
+                        <div style="font-size: 0.875rem;">
+                            ${data.majetekNemovitosti > 0 ? `<span class="pill">Nemovitosti: ${formatCurrency(data.majetekNemovitosti)}</span>` : ''}
+                            ${data.majetekInvestice > 0 ? `<span class="pill">Investice: ${formatCurrency(data.majetekInvestice)}</span>` : ''}
+                            ${data.majetekHotovost > 0 ? `<span class="pill">Hotovost: ${formatCurrency(data.majetekHotovost)}</span>` : ''}
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin: 0;">
+                        <h4 style="color: var(--primary); margin-bottom: 1rem;">📈 Investiční kapacita</h4>
+                        <p><strong>Rizikový profil:</strong> 
+                            ${data.investRiziko === 'konzervativni' ? '<span class="risk-low">Konzervativní</span>' :
+                              data.investRiziko === 'vyvazeny' ? '<span class="risk-medium">Vyvážený</span>' :
+                              data.investRiziko === 'dynamicky' ? '<span class="risk-medium">Dynamický</span>' :
+                              data.investRiziko === 'agresivni' ? '<span class="risk-high">Agresivní</span>' : 'Neuvedeno'}
+                        </p>
+                        <p><strong>Investiční horizont:</strong> ${
+                            data.investHorizont === 'kratky' ? 'Krátkodobý (do 3 let)' :
+                            data.investHorizont === 'stredni' ? 'Střednědobý (3-10 let)' :
+                            data.investHorizont === 'dlouhy' ? 'Dlouhodobý (nad 10 let)' : 'Neuvedeno'
+                        }</p>
+                        <p><strong>Měsíční kapacita:</strong> ${formatCurrency(data.investKapacita)}</p>
+                        <p style="margin-top: 1rem; font-size: 0.875rem; color: var(--neutral-700);">
+                            Potenciál ročního investování: ${formatCurrency(data.investKapacita * 12)}
+                        </p>
+                    </div>
+
+                    <div class="card" style="margin: 0;">
+                        <h4 style="color: var(--primary); margin-bottom: 1rem;">🛡️ Pojistná ochrana</h4>
+                        <p><strong>Životní pojištění:</strong> ${formatCurrency(data.pojistZivotCastka)}</p>
+                        <p><strong>Úrazové pojištění:</strong> ${formatCurrency(data.pojistUrazCastka)}</p>
+                        <p><strong>Měsíční pojistné:</strong> ${formatCurrency(data.pojistCelkem)}</p>
+                        <p style="margin-top: 1rem;"><strong>Doporučená částka života:</strong> 
+                            ${formatCurrency(calc.celkovePrijmy * 60)} (5 let příjmů)
+                        </p>
+                        ${data.pojistZivotCastka < calc.celkovePrijmy * 60 ? 
+                            '<p style="margin-top: 0.5rem; color: var(--warning); font-size: 0.875rem;">⚠️ Pojistná ochrana je nedostatečná</p>' : 
+                            '<p style="margin-top: 0.5rem; color: var(--success); font-size: 0.875rem;">✅ Pojistná ochrana je dostatečná</p>'}
+                    </div>
+
+                </div>
+            `;
+        }
+
+        // Export funkce
+        function exportToCRM() {
+            const data = collectData();
+            
+            // Připravit data pro CRM
+            const crmData = {
+                jmeno: data.jmeno,
+                rc: document.getElementById('rc')?.value || '',
+                email: document.getElementById('email')?.value || '',
+                telefon: document.getElementById('telefon')?.value || '',
+                rodinnyStav: data.rodinnyStav,
+                deti: data.deti,
+                prijem: data.prijemZamestnani + data.prijemPartner + data.prijemPodnikani + data.prijemPronajem + data.prijemInvestice + data.prijemOstatni,
+                majetek: data.majetekNemovitosti + data.majetekAuta + data.majetekHotovost + data.majetekInvestice + data.majetekPenze + data.majetekOstatni,
+                zavazky: data.dluhHypoteka + data.dluhSpotrebni + data.dluhLeasing + data.dluhKarty + data.dluhOstatni,
+                fullData: data // Celá finanční analýza
+            };
+            
+            // Uložit do localStorage pro přenos do CRM
+            localStorage.setItem('analyzerExport', JSON.stringify(crmData));
+            
+            // Otevřít CRM v nové záložce
+            const confirmed = confirm('Klient bude exportován do CRM systému.\n\nOtevřít CRM systém v nové záložce?');
+            if (confirmed) {
+                window.open('crm-system.html?import=true', '_blank');
+            }
+        }
+
+        function exportPDF() {
+            alert('Export do PDF pro klienta\n\nTato funkce by v produkční verzi generovala PDF dokument s:\n• Osobními údaji klienta\n• Shrnutím finanční situace\n• Vizualizacemi (grafy)\n• Doporučeními\n• Akčním plánem');
+        }
+
+        function exportInternal() {
+            alert('Export pro interní použití\n\nTento export obsahuje:\n• Kompletní finanční data\n• Detailní výpočty\n• Hodnocení rizik\n• Doporučené produkty\n• Poznámky poradce');
+        }
+
+        function exportPresentation() {
+            alert('Export prezentace\n\nGeneruje PowerPoint prezentaci obsahující:\n• Úvodní slide s identifikací klienta\n• Analýzu cash flow s grafy\n• Majetkovou situaci\n• Investiční doporučení\n• Pojistnou analýzu\n• Akční plán');
+        }
+
+        // Automatické ukládání do localStorage (volitelné)
+        function autoSave() {
+            const formData = {};
+            document.querySelectorAll('input, select, textarea').forEach(field => {
+                if (field.id) {
+                    formData[field.id] = field.value;
+                }
+            });
+            localStorage.setItem('financniAnalyza', JSON.stringify(formData));
+        }
+
+        // Načtení uložených dat
+        function loadSavedData() {
+            const saved = localStorage.getItem('financniAnalyza');
+            if (saved) {
+                const formData = JSON.parse(saved);
+                Object.keys(formData).forEach(key => {
+                    const field = document.getElementById(key);
+                    if (field) {
+                        field.value = formData[key];
+                    }
+                });
+            }
+        }
+
+        // Načíst data při startu
+        window.addEventListener('load', loadSavedData);
+
+        // Automatické ukládání při změně (každých 5 sekund)
+        setInterval(autoSave, 5000);
+    </script>
+</body>
+</html>
