@@ -1,5 +1,5 @@
 // Service Worker pro offline funkčnost
-const CACHE_NAME = 'financial-pwa-v1';
+const CACHE_NAME = 'financial-pwa-v3';
 const urlsToCache = [
   './',
   './crm-system.html',
